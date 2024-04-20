@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test'
 import InventoryPage from '../pages/inventoryPage'
 import ItemPage from '../pages/itemPage'
+import CartPage from '../pages/cartPage'
 
 test.describe('Разработка E2E тестов для интернет-магазина с помощью Playwright', async () => {
   test('Отображение карточек товаров на главной странице', async ({ page }) => {
@@ -15,5 +16,11 @@ test.describe('Разработка E2E тестов для интернет-м�
     await inventoryPage.checkFirstItem(await itemPage.getItemImg())
     await itemPage.clickButtonBackToProducts()
     await inventoryPage.titleProductsIsVisible()
+  })
+
+  test('Меню', async ({ page }) => {
+    const inventoryPage = new InventoryPage(page)
+    await inventoryPage.goto()
+    await inventoryPage.checkMenu()
   })
 })

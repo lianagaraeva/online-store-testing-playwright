@@ -10,7 +10,11 @@ export default class InventoryPage {
   readonly inventoryPrice: Locator
   readonly buttonAddToCart: Locator
   readonly firstItemName: Locator
+  readonly buttonRemove: Locator
   readonly titleProducts: Locator
+  readonly menu: Locator
+  readonly menuItem: Locator
+  readonly closeMenu: Locator
 
   constructor(page: Page) {
     this.page = page
@@ -25,7 +29,14 @@ export default class InventoryPage {
       '.btn.btn_primary.btn_small.btn_inventory'
     )
     this.firstItemName = page.locator('[data-test="item-4-title-link"]')
+
+    this.buttonRemove = page.locator(
+      '.btn.btn_secondary.btn_small.btn_inventory'
+    )
     this.titleProducts = page.locator('[data-test="title"]')
+    this.menu = page.locator('#react-burger-menu-btn')
+    this.menuItem = page.locator('.bm-item.menu-item')
+    this.closeMenu = page.locator('#react-burger-cross-btn')
   }
 
   async goto() {
@@ -40,7 +51,7 @@ export default class InventoryPage {
     await expect(this.inventoryPrice).toHaveCount(countItemsInPage)
     await expect(this.buttonAddToCart).toHaveCount(countItemsInPage)
 
-    for (var index = 0; index < countItemsInPage; index++) {
+    for (let index = 0; index < countItemsInPage; index++) {
       const elementImg = this.inventoryImg.nth(index)
       const elementName = this.inventoryListName.nth(index)
       const elementDescription = this.inventoryDescription.nth(index)
@@ -82,5 +93,26 @@ export default class InventoryPage {
   }
   async titleProductsIsVisible() {
     await expect(this.titleProducts).toBeVisible()
+  }
+
+  async addToCart() {
+    await expect(this.buttonAddToCart.first()).toHaveCSS(
+      'color',
+      'rgb(19, 35, 34)'
+    )
+    await this.buttonAddToCart.click()
+    // сделать переменную first и использовать ее ниже вместо first()
+    await expect(this.buttonRemove.first()).toBeVisible()
+    await expect(this.buttonRemove.first()).toHaveCSS(
+      'color',
+      'rgb(226, 35, 26)'
+    )
+  }
+  async checkMenu() {
+    await this.menu.click()
+    await expect(this.menuItem).toHaveCount(4)
+    await expect(this.menuItem.first()).toHaveAttribute('href', /.*/)
+    await expect(this.menuItem.first()).toHaveCSS('color', 'rgb(24, 88, 58)')
+    await this.closeMenu.click()
   }
 }
