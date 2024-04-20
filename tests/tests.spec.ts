@@ -18,7 +18,15 @@ test.describe('Разработка E2E тестов для интернет-м�
     await inventoryPage.titleProductsIsVisible()
   })
 
-  test('Меню', async ({ page }) => {
+  test('Добавление товара в корзину из списка товаров и из карточки товара', async ({
+    page,
+  }) => {
+    const inventoryPage = new InventoryPage(page)
+    await inventoryPage.goto()
+    await inventoryPage.addToCart()
+  })
+
+  test('Проверка элементов меню', async ({ page }) => {
     const inventoryPage = new InventoryPage(page)
     await inventoryPage.goto()
     await inventoryPage.checkMenu()
