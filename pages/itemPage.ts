@@ -1,4 +1,5 @@
-import { type Locator, type Page } from '@playwright/test'
+import { expect, type Locator, type Page } from '@playwright/test'
+import { colorWhite, colorLightGreen } from '../constants'
 
 export default class ItemPage {
   readonly page: Page
@@ -10,10 +11,16 @@ export default class ItemPage {
     this.itemImg = page.locator('.inventory_details_img')
     this.buttonBackToProducts = page.locator('[data-test="back-to-products"]')
   }
-  async getItemImg() {
-    return await this.itemImg
+  getItemImg() {
+    return this.itemImg
   }
   async clickButtonBackToProducts() {
     await this.buttonBackToProducts.click()
+  }
+  async checkButtonColor(isFullCard) {
+    await expect(this.buttonBackToProducts).toHaveCSS(
+      'background-color',
+      isFullCard ? colorWhite : colorLightGreen
+    )
   }
 }

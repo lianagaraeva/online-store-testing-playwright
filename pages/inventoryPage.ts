@@ -1,7 +1,9 @@
 import { expect, type Locator, type Page } from '@playwright/test'
+import { colorBlack, colorGreen, colorRed } from '../constants'
 
 const countItemsInPage = 6
 const countMenuItems = 4
+
 export default class InventoryPage {
   readonly page: Page
   readonly inventoryList: Locator
@@ -13,16 +15,19 @@ export default class InventoryPage {
   readonly firstItemName: Locator
   readonly secondItemName: Locator
   readonly removeButton: Locator
-  readonly titleProducts: Locator
+  readonly title: Locator
   readonly burgerMenuButton: Locator
   readonly menuItem: Locator
   readonly closeMenuButton: Locator
   readonly shoppingCartBadge: Locator
   readonly firstAddToCartButton: Locator
   readonly firstRemoveButton: Locator
+  readonly shoppingCart: Locator
 
   constructor(page: Page) {
     this.page = page
+
+    /* ------------ Отображение карточек товаров на главной странице ------------ */
     this.inventoryList = page.locator('[data-test="inventory-item"]')
     this.inventoryImg = page.locator('img.inventory_item_img')
     this.inventoryListName = page.locator('[data-test="inventory-item-name"]')
@@ -33,24 +38,30 @@ export default class InventoryPage {
     this.addToCartButton = page.locator(
       '.btn.btn_primary.btn_small.btn_inventory'
     )
+
+    /* ------------------------ Просмотр карточки товара ------------------------ */
     this.firstItemName = page.locator('[data-test="item-4-title-link"]')
     this.secondItemName = page.locator('[data-test="item-0-title-link"]')
     this.removeButton = page.locator(
       '.btn.btn_secondary.btn_small.btn_inventory'
     )
-    this.titleProducts = page.locator('[data-test="title"]')
+    this.title = page.locator('[data-test="title"]')
     this.burgerMenuButton = page.locator('#react-burger-menu-btn')
     this.menuItem = page.locator('.bm-item.menu-item')
     this.closeMenuButton = page.locator('#react-burger-cross-btn')
     this.shoppingCartBadge = page.locator('[data-test="shopping-cart-badge"]')
+
+    /* --- Добавление товара в корзину из списка товаров и из карточки товара --- */
     this.firstAddToCartButton = this.addToCartButton.first()
     this.firstRemoveButton = this.removeButton.first()
+    this.shoppingCart = page.locator('[data-test="shopping-cart-link"]')
   }
 
   async goto() {
     await this.page.goto('https://www.saucedemo.com/inventory.html')
   }
 
+  /* ------------ Отображение карточек товаров на главной странице ------------ */
   async checkInventoryListVisible() {
     await expect(this.inventoryList).toHaveCount(countItemsInPage)
     await expect(this.inventoryImg).toHaveCount(countItemsInPage)
@@ -66,7 +77,7 @@ export default class InventoryPage {
       const elementPrice = this.inventoryPrice.nth(index)
       const elementButton = this.addToCartButton.nth(index)
 
-      this.checkCard(
+      await this.checkCard(
         elementImg,
         elementName,
         elementDescription,
@@ -79,15 +90,13 @@ export default class InventoryPage {
   async checkCard(img, name, description, price, button, isFullCard = false) {
     await expect(img).toHaveAttribute('src', /.*/)
     await expect(name).not.toBeEmpty()
-    await expect(name).toHaveCSS(
-      'color',
-      isFullCard ? 'rgb(19, 35, 34)' : 'rgb(24, 88, 58)'
-    )
+    await expect(name).toHaveCSS('color', isFullCard ? colorBlack : colorGreen)
     await expect(description).not.toBeEmpty()
     await expect(price).toHaveText(/$/)
     await expect(button).toHaveText(/Add to cart/)
   }
 
+  /* ------------------------ Просмотр карточки товара ------------------------ */
   async checkFirstItem(itemImg) {
     await this.firstItemName.click()
     await this.checkCard(
@@ -99,30 +108,57 @@ export default class InventoryPage {
       true
     )
   }
-  async titleProductsIsVisible() {
-    await expect(this.titleProducts).toBeVisible()
+  async textInTitleIsVisible(text) {
+    await expect(this.title).toHaveText(text)
   }
 
-  async addToCart() {
-    // проверили, что цвет кнопки - чёрный
-    await expect(this.firstAddToCartButton).toHaveCSS(
-      'color',
-      'rgb(19, 35, 34)'
+  /* --- Добавление товара в корзину из списка товаров и из карточки товара --- */
+  async addProductsToCart() {
+    let countItemsInCart = 0
+    await expect(this.firstAddToCartButton).toHaveCSS('color', colorBlack)
+    countItemsInCart = await this.getCountClicksByButton(
+      this.firstAddToCartButton,
+      countItemsInCart
     )
-    await this.firstAddToCartButton.click()
     await expect(this.firstRemoveButton).toBeVisible()
-    // проверили, что цвет кнопки - красный
-    await expect(this.firstRemoveButton).toHaveCSS('color', 'rgb(226, 35, 26)')
-    await expect(this.shoppingCartBadge).toHaveText(/1/)
-    // проверили, что цвет бэйджа корзины - красный
-    await expect(this.shoppingCartBadge).toHaveCSS(
-      'background-color',
-      'rgb(226, 35, 26)'
-    )
+    await expect(this.firstRemoveButton).toHaveCSS('color', colorRed)
+    await this.checkCountShoppingCartBadge(countItemsInCart)
+    await expect(this.shoppingCartBadge).toHaveCSS('background-color', colorRed)
     await this.secondItemName.click()
-    await this.addToCartButton.click()
-    await expect(this.shoppingCartBadge).toHaveText(/2/)
+    countItemsInCart = await this.getCountClicksByButton(
+      this.addToCartButton,
+      countItemsInCart
+    )
+    await this.checkCountShoppingCartBadge(countItemsInCart)
+    return countItemsInCart
   }
+  private async getCountClicksByButton(button, countItemsInCart) {
+    await button.click()
+    return countItemsInCart++
+  }
+  async checkCountShoppingCartBadge(count: number | null = null) {
+    if (count !== null && count > 0) {
+      await expect(this.shoppingCartBadge).toHaveText(`${count}`)
+    } else {
+      await expect(this.shoppingCartBadge).not.toBeVisible()
+    }
+  }
+
+  async clickShoppingCart() {
+    await this.shoppingCart.click()
+  }
+
+  getProductLocators() {
+    return {
+      inventoryList: this.inventoryListName,
+      inventoryListName: this.inventoryListName,
+      inventoryDescription: this.inventoryDescription,
+      inventoryPrice: this.inventoryPrice,
+      removeButton: this.removeButton,
+    }
+  }
+
+  /* ------------------------- Проверка элементов меню ------------------------ */
   async checkMenu() {
     await expect(this.burgerMenuButton).toBeVisible()
     await this.burgerMenuButton.click()
@@ -140,6 +176,6 @@ export default class InventoryPage {
 
   private async checkMenuItem(elementMenuItem) {
     await expect(elementMenuItem).toHaveAttribute('href', /.*/)
-    await expect(elementMenuItem).toHaveCSS('color', 'rgb(24, 88, 58)')
+    await expect(elementMenuItem).toHaveCSS('color', colorGreen)
   }
 }

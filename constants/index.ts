@@ -1,0 +1,5 @@
+export const colorBlack = 'rgb(19, 35, 34)'
+export const colorRed = 'rgb(226, 35, 26)'
+export const colorGreen = 'rgb(24, 88, 58)'
+export const colorLightGreen = 'rgb(61, 220, 145)'
+export const colorWhite = 'rgb(255, 255, 255)'
