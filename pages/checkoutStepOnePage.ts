@@ -1,4 +1,4 @@
-import { type Locator, type Page } from '@playwright/test'
+import { expect, type Locator, type Page } from '@playwright/test'
 
 export default class CheckoutStepOnePage {
   readonly page: Page
@@ -6,6 +6,7 @@ export default class CheckoutStepOnePage {
   readonly lastNameInput: Locator
   readonly postalCodeInput: Locator
   readonly continueButton: Locator
+  readonly errorMessage: Locator
 
   constructor(page: Page) {
     this.page = page
@@ -13,6 +14,7 @@ export default class CheckoutStepOnePage {
     this.lastNameInput = page.locator('[data-test="lastName"]')
     this.postalCodeInput = page.locator('[data-test="postalCode"]')
     this.continueButton = page.locator('[data-test="continue"]')
+    this.errorMessage = page.locator('[data-test="error"]')
   }
 
   async checkoutDataInput({ firstName, lastName, postalCode }) {
@@ -20,5 +22,9 @@ export default class CheckoutStepOnePage {
     await this.lastNameInput.fill(lastName)
     await this.postalCodeInput.fill(postalCode)
     await this.continueButton.click()
+  }
+
+  async checkErrorMessage(text) {
+    await expect(this.errorMessage).toHaveText(text)
   }
 }

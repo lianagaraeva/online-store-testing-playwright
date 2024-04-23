@@ -73,6 +73,42 @@ test.describe('Разработка E2E тестов для интернет-м�
     await inventoryPage.checkInventoryListVisible()
   })
 
+  test('Валидация полей формы при оформлении заказа', async ({ page }) => {
+    const inventoryPage = new InventoryPage(page)
+    const cartPage = new CartPage(page)
+    const checkoutStepOnePage = new CheckoutStepOnePage(page)
+    await inventoryPage.goto()
+    await inventoryPage.addProductsToCart()
+    await inventoryPage.clickShoppingCart()
+    await cartPage.clickCheckoutButton()
+    await checkoutStepOnePage.checkoutDataInput({
+      firstName: '',
+      lastName: '',
+      postalCode: '',
+    })
+    await checkoutStepOnePage.checkErrorMessage('Error: First Name is required')
+    await checkoutStepOnePage.checkoutDataInput({
+      firstName: 'John',
+      lastName: '',
+      postalCode: '',
+    })
+    await checkoutStepOnePage.checkErrorMessage('Error: Last Name is required')
+    await checkoutStepOnePage.checkoutDataInput({
+      firstName: 'John',
+      lastName: 'Smith',
+      postalCode: '',
+    })
+    await checkoutStepOnePage.checkErrorMessage(
+      'Error: Postal Code is required'
+    )
+    await checkoutStepOnePage.checkoutDataInput({
+      firstName: 'John',
+      lastName: 'Smith',
+      postalCode: '123456',
+    })
+    await inventoryPage.textInTitleIsVisible('Checkout: Overview')
+  })
+
   test('Проверка элементов меню', async ({ page }) => {
     const inventoryPage = new InventoryPage(page)
     await inventoryPage.goto()
