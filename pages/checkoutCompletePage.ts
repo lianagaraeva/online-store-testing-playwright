@@ -5,8 +5,6 @@ export default class CheckoutCompletePage {
   readonly checkMarkImage: Locator
   readonly completeHeader: Locator
   readonly completeText: Locator
-  // title взять из InventoryPage
-  // button [Back Home] взять из ItemPage
 
   constructor(page: Page) {
     this.page = page

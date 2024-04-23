@@ -5,6 +5,7 @@ import CartPage from '../pages/cartPage'
 import CheckoutStepOnePage from '../pages/checkoutStepOnePage'
 import CheckoutStepTwoPage from '../pages/checkoutStepTwoPage'
 import CheckoutCompletePage from '../pages/checkoutCompletePage'
+import Logout from '../pages/logoutPage'
 
 test.describe('Разработка E2E тестов для интернет-магазина с помощью Playwright', async () => {
   test('Отображение карточек товаров на главной странице', async ({ page }) => {
@@ -62,8 +63,7 @@ test.describe('Разработка E2E тестов для интернет-м�
       false
     )
     await checkoutStepTwoPage.checkSummaryInfo()
-    // проверить цену
-    // await checkoutStepTwoPage.checkSumOrder(inventoryPage.inventoryPrice)
+    await checkoutStepTwoPage.checkSumOrder(inventoryPage.inventoryPrice)
     await checkoutStepTwoPage.clickFinishButton()
     await inventoryPage.textInTitleIsVisible('Checkout: Complete!')
     await checkoutCompletePage.checkCompletePage()
@@ -77,5 +77,14 @@ test.describe('Разработка E2E тестов для интернет-м�
     const inventoryPage = new InventoryPage(page)
     await inventoryPage.goto()
     await inventoryPage.checkMenu()
+  })
+
+  test('Logout', async ({ page }) => {
+    const inventoryPage = new InventoryPage(page)
+    const logoutPage = new Logout(page)
+    await inventoryPage.goto()
+    await inventoryPage.logout()
+    await logoutPage.checkAuthPage()
+    await logoutPage.checkLoginButtonColor()
   })
 })

@@ -39,13 +39,25 @@ export default class CheckoutStepTwoPage {
     await expect(this.totalLabel).toBeVisible()
   }
 
-  async checkSumOrder(s) {
-    const sum = this.getSumProducts([])
+  async checkSumOrder(inventoryPrice) {
+    const sum = await this.getSumProducts(inventoryPrice)
+    let itemTotal = await this.subtotalLabel.innerText()
+    itemTotal = itemTotal.replace('Item total: $', '')
+    expect(+itemTotal).toEqual(sum)
+    let tax = await this.taxLabel.innerText()
+    tax = tax.replace('Tax: $', '')
+    let totalPrice = await this.totalLabel.innerText()
+    totalPrice = totalPrice.replace('Total: $', '')
+    expect(+itemTotal + +tax).toEqual(+totalPrice)
   }
-  getSumProducts(productList) {
-    for (let index = 0; index < productList.count(); index++) {
-      const product = productList.nth(index)
+  async getSumProducts(priceList) {
+    let sum = 0
+    for (let index = 0; index < (await priceList.count()); index++) {
+      const price = priceList.nth(index)
+      const priceText = await price.innerText()
+      sum += +priceText.replace('$', '')
     }
+    return sum
   }
 
   async clickFinishButton() {

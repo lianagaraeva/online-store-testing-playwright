@@ -134,7 +134,7 @@ export default class InventoryPage {
   }
   private async getCountClicksByButton(button, countItemsInCart) {
     await button.click()
-    return countItemsInCart++
+    return ++countItemsInCart
   }
   async checkCountShoppingCartBadge(count: number | null = null) {
     if (count !== null && count > 0) {
@@ -177,5 +177,11 @@ export default class InventoryPage {
   private async checkMenuItem(elementMenuItem) {
     await expect(elementMenuItem).toHaveAttribute('href', /.*/)
     await expect(elementMenuItem).toHaveCSS('color', colorGreen)
+  }
+
+  /* --------------------------------- Logout --------------------------------- */
+  async logout() {
+    await this.burgerMenuButton.click()
+    await this.menuItem.nth(2).click()
   }
 }
