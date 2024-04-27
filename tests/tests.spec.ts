@@ -109,7 +109,7 @@ test.describe('Разработка E2E тестов для интернет-м�
     await inventoryPage.textInTitleIsVisible('Checkout: Overview')
   })
 
-  test('Сортировка товаров по цене', async ({ page }) => {
+  test('Сортировка товаров по цене по возрастанию', async ({ page }) => {
     const inventoryPage = new InventoryPage(page)
     await inventoryPage.goto()
     const originalPrices = await inventoryPage.getProductsPrices(
@@ -120,7 +120,24 @@ test.describe('Разработка E2E тестов для интернет-м�
     const sortedByPagePrices = await inventoryPage.getProductsPrices(
       inventoryPage.inventoryPrice
     )
+    expect(
+      inventoryPage.arraysAreEqual(sortedByCodePrices, sortedByPagePrices)
+    ).toBeTruthy()
+  })
 
+  test('Сортировка товаров по цене по убыванию', async ({ page }) => {
+    const inventoryPage = new InventoryPage(page)
+    await inventoryPage.goto()
+    const originalPrices = await inventoryPage.getProductsPrices(
+      inventoryPage.inventoryPrice
+    )
+    const sortedByCodePrices = await inventoryPage.sortPricesDesc(
+      originalPrices
+    )
+    await inventoryPage.selectSort('Price (high to low)')
+    const sortedByPagePrices = await inventoryPage.getProductsPrices(
+      inventoryPage.inventoryPrice
+    )
     expect(
       inventoryPage.arraysAreEqual(sortedByCodePrices, sortedByPagePrices)
     ).toBeTruthy()

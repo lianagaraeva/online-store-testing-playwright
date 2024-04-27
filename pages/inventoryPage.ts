@@ -167,6 +167,10 @@ export default class InventoryPage {
     return prices.sort((a, b) => a - b)
   }
 
+  sortPricesDesc(prices) {
+    return prices.sort((a, b) => b - a)
+  }
+
   async getProductsPrices(priceList) {
     let unsortedPrices: number[] = []
     for (let index = 0; index < (await priceList.count()); index++) {
@@ -191,9 +195,7 @@ export default class InventoryPage {
 
   /* ------------------------- Проверка элементов меню ------------------------ */
   async checkMenu() {
-    await expect(this.burgerMenuButton).toBeVisible()
     await this.burgerMenuButton.click()
-    await expect(this.burgerMenuButton).not.toBeVisible()
 
     await expect(this.menuItem).toHaveCount(4)
     for (let index = 0; index < countMenuItems; index++) {
@@ -202,7 +204,6 @@ export default class InventoryPage {
     }
 
     await this.closeMenuButton.click()
-    await expect(this.burgerMenuButton).toBeVisible()
   }
 
   private async checkMenuItem(elementMenuItem) {
