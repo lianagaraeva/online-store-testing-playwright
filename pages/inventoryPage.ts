@@ -23,6 +23,7 @@ export default class InventoryPage {
   readonly firstAddToCartButton: Locator
   readonly firstRemoveButton: Locator
   readonly shoppingCart: Locator
+  readonly productSort: Locator
 
   constructor(page: Page) {
     this.page = page
@@ -55,6 +56,9 @@ export default class InventoryPage {
     this.firstAddToCartButton = this.addToCartButton.first()
     this.firstRemoveButton = this.removeButton.first()
     this.shoppingCart = page.locator('[data-test="shopping-cart-link"]')
+
+    /* ------------------------------- Сортировка ------------------------------- */
+    this.productSort = page.locator('[data-test="product-sort-container"]')
   }
 
   async goto() {
@@ -156,6 +160,33 @@ export default class InventoryPage {
       inventoryPrice: this.inventoryPrice,
       removeButton: this.removeButton,
     }
+  }
+
+  /* ------------------------------- Сортировка ------------------------------- */
+  sortPricesAsc(prices) {
+    return prices.sort((a, b) => a - b)
+  }
+
+  async getProductsPrices(priceList) {
+    let unsortedPrices: number[] = []
+    for (let index = 0; index < (await priceList.count()); index++) {
+      const price = priceList.nth(index)
+      const priceText = await price.innerText()
+      unsortedPrices.push(+priceText.replace('$', ''))
+    }
+    return unsortedPrices
+  }
+
+  arraysAreEqual(arr1, arr2) {
+    if (arr1.length != arr2.length) return false
+    for (let i = 0; i < arr1.length; i++) {
+      if (arr1[i] != arr2[i]) return false
+    }
+    return true
+  }
+
+  async selectSort(text) {
+    await this.productSort.selectOption(text)
   }
 
   /* ------------------------- Проверка элементов меню ------------------------ */

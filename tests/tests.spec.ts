@@ -109,6 +109,23 @@ test.describe('Разработка E2E тестов для интернет-м�
     await inventoryPage.textInTitleIsVisible('Checkout: Overview')
   })
 
+  test('Сортировка товаров по цене', async ({ page }) => {
+    const inventoryPage = new InventoryPage(page)
+    await inventoryPage.goto()
+    const originalPrices = await inventoryPage.getProductsPrices(
+      inventoryPage.inventoryPrice
+    )
+    const sortedByCodePrices = await inventoryPage.sortPricesAsc(originalPrices)
+    await inventoryPage.selectSort('Price (low to high)')
+    const sortedByPagePrices = await inventoryPage.getProductsPrices(
+      inventoryPage.inventoryPrice
+    )
+
+    expect(
+      inventoryPage.arraysAreEqual(sortedByCodePrices, sortedByPagePrices)
+    ).toBeTruthy()
+  })
+
   test('Проверка элементов меню', async ({ page }) => {
     const inventoryPage = new InventoryPage(page)
     await inventoryPage.goto()
