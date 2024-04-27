@@ -1,5 +1,5 @@
 import { defineConfig, devices } from '@playwright/test'
-
+import { testPlanFilter } from 'allure-playwright/dist/testplan'
 /**
  * Read environment variables from file.
  * https://github.com/motdotla/dotenv
@@ -20,7 +20,8 @@ export default defineConfig({
   /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: 'html',
+  grep: testPlanFilter(),
+  reporter: 'allure-playwright',
   timeout: 60000,
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {

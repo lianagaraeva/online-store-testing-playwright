@@ -62,4 +62,8 @@ export default class CartPage {
   async clickCheckoutButton() {
     await this.checkoutButton.click()
   }
+
+  async clickRemoveButtonInCart() {
+    await this.removeButtonInCart.first().click()
+  }
 }
