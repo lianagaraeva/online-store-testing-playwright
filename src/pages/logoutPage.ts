@@ -26,4 +26,10 @@ export default class Logout {
       colorLightGreen
     )
   }
+
+  async authDataInput({ username, password }) {
+    await this.usernameInput.fill(username)
+    await this.passwordInput.fill(password)
+    await this.loginButton.click()
+  }
 }

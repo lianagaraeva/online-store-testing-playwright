@@ -160,4 +160,40 @@ test.describe('Разработка E2E тестов для интернет-м�
     await logoutPage.checkAuthPage()
     await logoutPage.checkLoginButtonColor()
   })
+
+  test('Валидация полей формы авторизации', async ({ page }) => {
+    const inventoryPage = new InventoryPage(page)
+    const logoutPage = new Logout(page)
+    const checkoutStepOnePage = new CheckoutStepOnePage(page)
+    await inventoryPage.goto()
+    await inventoryPage.logout()
+    await logoutPage.authDataInput({
+      username: '',
+      password: '',
+    })
+    await checkoutStepOnePage.checkErrorMessage(
+      'Epic sadface: Username is required'
+    )
+    await logoutPage.authDataInput({
+      username: 'standard_user',
+      password: '',
+    })
+    await checkoutStepOnePage.checkErrorMessage(
+      'Epic sadface: Password is required'
+    )
+    await logoutPage.authDataInput({
+      username: 'testUsername',
+      password: 'secret_sauce',
+    })
+    await checkoutStepOnePage.checkErrorMessage(
+      'Epic sadface: Username and password do not match any user in this service'
+    )
+    await logoutPage.authDataInput({
+      username: 'standard_user',
+      password: 'testPassword',
+    })
+    await checkoutStepOnePage.checkErrorMessage(
+      'Epic sadface: Username and password do not match any user in this service'
+    )
+  })
 })
