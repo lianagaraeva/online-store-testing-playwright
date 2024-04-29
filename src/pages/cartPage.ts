@@ -1,5 +1,6 @@
 import { expect, type Locator, type Page } from '@playwright/test'
 import { colorGreen } from '../constants'
+import { getCountClicksByButton } from '../helpers'
 
 export default class CartPage {
   readonly page: Page
@@ -16,7 +17,7 @@ export default class CartPage {
     this.checkoutButton = page.locator('[data-test="checkout"]')
   }
 
-  async checkItemsInCart(
+  async checkCountItems(
     { inventoryList, inventoryListName, inventoryDescription, inventoryPrice },
     countItemsInCart,
     isCartPage = true
@@ -29,7 +30,26 @@ export default class CartPage {
       await expect(this.removeButtonInCart).toHaveCount(countItemsInCart)
     }
     await expect(this.itemQuantity).toHaveCount(countItemsInCart)
+  }
 
+  async checkItemsInCart(productLocators, countItemsInCart, isCartPage = true) {
+    const {
+      inventoryList,
+      inventoryListName,
+      inventoryDescription,
+      inventoryPrice,
+    } = productLocators
+
+    await this.checkCountItems(
+      {
+        inventoryList,
+        inventoryListName,
+        inventoryDescription,
+        inventoryPrice,
+      },
+      countItemsInCart,
+      isCartPage
+    )
     for (let index = 0; index < countItemsInCart; index++) {
       const name = inventoryListName.nth(index)
       const description = inventoryDescription.nth(index)
@@ -63,7 +83,11 @@ export default class CartPage {
     await this.checkoutButton.click()
   }
 
-  async clickRemoveButtonInCart() {
-    await this.removeButtonInCart.first().click()
+  async removeItemInCart(countItemsInCart) {
+    return getCountClicksByButton(
+      this.removeButtonInCart.first(),
+      countItemsInCart,
+      false
+    )
   }
 }

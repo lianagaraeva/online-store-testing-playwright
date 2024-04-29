@@ -1,5 +1,6 @@
 import { expect, type Locator, type Page } from '@playwright/test'
 import { colorBlack, colorGreen, colorRed } from '../constants'
+import { getCountClicksByButton } from '../helpers'
 
 const countItemsInPage = 6
 const countMenuItems = 4
@@ -120,26 +121,25 @@ export default class InventoryPage {
   async addProductsToCart() {
     let countItemsInCart = 0
     await expect(this.firstAddToCartButton).toHaveCSS('color', colorBlack)
-    countItemsInCart = await this.getCountClicksByButton(
+    countItemsInCart = await getCountClicksByButton(
       this.firstAddToCartButton,
-      countItemsInCart
+      countItemsInCart,
+      true
     )
     await expect(this.firstRemoveButton).toBeVisible()
     await expect(this.firstRemoveButton).toHaveCSS('color', colorRed)
     await this.checkCountShoppingCartBadge(countItemsInCart)
     await expect(this.shoppingCartBadge).toHaveCSS('background-color', colorRed)
     await this.secondItemName.click()
-    countItemsInCart = await this.getCountClicksByButton(
+    countItemsInCart = await getCountClicksByButton(
       this.addToCartButton,
-      countItemsInCart
+      countItemsInCart,
+      true
     )
     await this.checkCountShoppingCartBadge(countItemsInCart)
     return countItemsInCart
   }
-  private async getCountClicksByButton(button, countItemsInCart) {
-    await button.click()
-    return ++countItemsInCart
-  }
+
   async checkCountShoppingCartBadge(count: number | null = null) {
     if (count !== null && count > 0) {
       await expect(this.shoppingCartBadge).toHaveText(`${count}`)
@@ -153,13 +153,23 @@ export default class InventoryPage {
   }
 
   getProductLocators() {
-    return {
-      inventoryList: this.inventoryListName,
+    const productLocators = {
+      inventoryList: this.inventoryList,
       inventoryListName: this.inventoryListName,
       inventoryDescription: this.inventoryDescription,
       inventoryPrice: this.inventoryPrice,
       removeButton: this.removeButton,
     }
+    return productLocators
+  }
+
+  /* -------------------------------- Удаление -------------------------------- */
+  async getFirstNameItemInCart() {
+    return this.inventoryListName.first().innerText()
+  }
+
+  async checkFirstNameInCartNotContainText(text) {
+    await expect(this.inventoryListName.first()).not.toContainText(text)
   }
 
   /* ------------------------------- Сортировка ------------------------------- */

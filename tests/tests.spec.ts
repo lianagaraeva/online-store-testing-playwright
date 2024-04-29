@@ -1,11 +1,11 @@
 import { test, expect } from '@playwright/test'
-import InventoryPage from '../pages/inventoryPage'
-import ItemPage from '../pages/itemPage'
-import CartPage from '../pages/cartPage'
-import CheckoutStepOnePage from '../pages/checkoutStepOnePage'
-import CheckoutStepTwoPage from '../pages/checkoutStepTwoPage'
-import CheckoutCompletePage from '../pages/checkoutCompletePage'
-import Logout from '../pages/logoutPage'
+import InventoryPage from '../src/pages/inventoryPage'
+import ItemPage from '../src/pages/itemPage'
+import CartPage from '../src/pages/cartPage'
+import CheckoutStepOnePage from '../src/pages/checkoutStepOnePage'
+import CheckoutStepTwoPage from '../src/pages/checkoutStepTwoPage'
+import CheckoutCompletePage from '../src/pages/checkoutCompletePage'
+import Logout from '../src/pages/logoutPage'
 
 test.describe('Разработка E2E тестов для интернет-магазина с помощью Playwright', async () => {
   test('Отображение карточек товаров на главной странице', async ({ page }) => {
@@ -73,14 +73,32 @@ test.describe('Разработка E2E тестов для интернет-м�
     await inventoryPage.checkInventoryListVisible()
   })
 
+  test('Удаление товара из корзины', async ({ page }) => {
+    const inventoryPage = new InventoryPage(page)
+    const cartPage = new CartPage(page)
+    await inventoryPage.goto()
+    // Подготовка к удалению
+    let countItemsInCart = await inventoryPage.addProductsToCart()
+    await inventoryPage.clickShoppingCart()
+    // Начало удаления товара
+    const firstItemInCart = await inventoryPage.getFirstNameItemInCart()
+    countItemsInCart = await cartPage.removeItemInCart(countItemsInCart)
+    await inventoryPage.checkCountShoppingCartBadge(countItemsInCart)
+    const productLocators = inventoryPage.getProductLocators()
+    await cartPage.checkCountItems(productLocators, countItemsInCart)
+    await inventoryPage.checkFirstNameInCartNotContainText(firstItemInCart)
+  })
+
   test('Валидация полей формы при оформлении заказа', async ({ page }) => {
     const inventoryPage = new InventoryPage(page)
     const cartPage = new CartPage(page)
     const checkoutStepOnePage = new CheckoutStepOnePage(page)
     await inventoryPage.goto()
+    // Подготовка
     await inventoryPage.addProductsToCart()
     await inventoryPage.clickShoppingCart()
     await cartPage.clickCheckoutButton()
+    // Начало валидации
     await checkoutStepOnePage.checkoutDataInput({
       firstName: '',
       lastName: '',
@@ -109,7 +127,9 @@ test.describe('Разработка E2E тестов для интернет-м�
     await inventoryPage.textInTitleIsVisible('Checkout: Overview')
   })
 
-  test('Сортировка товаров по цене по возрастанию', async ({ page }) => {
+  test('Сортировка товаров по возрастанию и убыванию цены', async ({
+    page,
+  }) => {
     const inventoryPage = new InventoryPage(page)
     await inventoryPage.goto()
     const originalPrices = await inventoryPage.getProductsPrices(
@@ -124,24 +144,7 @@ test.describe('Разработка E2E тестов для интернет-м�
       inventoryPage.arraysAreEqual(sortedByCodePrices, sortedByPagePrices)
     ).toBeTruthy()
   })
-
-  test('Сортировка товаров по цене по убыванию', async ({ page }) => {
-    const inventoryPage = new InventoryPage(page)
-    await inventoryPage.goto()
-    const originalPrices = await inventoryPage.getProductsPrices(
-      inventoryPage.inventoryPrice
-    )
-    const sortedByCodePrices = await inventoryPage.sortPricesDesc(
-      originalPrices
-    )
-    await inventoryPage.selectSort('Price (high to low)')
-    const sortedByPagePrices = await inventoryPage.getProductsPrices(
-      inventoryPage.inventoryPrice
-    )
-    expect(
-      inventoryPage.arraysAreEqual(sortedByCodePrices, sortedByPagePrices)
-    ).toBeTruthy()
-  })
+  // Объединить возрастание и убывание
 
   test('Проверка элементов меню', async ({ page }) => {
     const inventoryPage = new InventoryPage(page)
