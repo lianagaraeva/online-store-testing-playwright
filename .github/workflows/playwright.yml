@@ -17,9 +17,7 @@ jobs:
           node-version: 20.11.0
           cache: 'npm'
       - run: npm ci
-      - run: npm run playwright-version
       - run: npm run playwright-install
-      - run: npm run playwright-version
       - run: npm run test:ci
       - run: npm run allure:ci
       - name: Setup Pages
