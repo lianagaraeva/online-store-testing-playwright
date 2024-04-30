@@ -173,12 +173,8 @@ export default class InventoryPage {
   }
 
   /* ------------------------------- Сортировка ------------------------------- */
-  sortPricesAsc(prices) {
-    return prices.sort((a, b) => a - b)
-  }
-
-  sortPricesDesc(prices) {
-    return prices.sort((a, b) => b - a)
+  sortPrices(prices, isAsc) {
+    return prices.sort((a, b) => (isAsc ? a - b : b - a))
   }
 
   async getProductsPrices(priceList) {

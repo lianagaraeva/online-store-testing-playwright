@@ -132,19 +132,33 @@ test.describe('Разработка E2E тестов для интернет-м�
   }) => {
     const inventoryPage = new InventoryPage(page)
     await inventoryPage.goto()
-    const originalPrices = await inventoryPage.getProductsPrices(
+    // Подготовка к сортировке
+    let originalPrices = await inventoryPage.getProductsPrices(
       inventoryPage.inventoryPrice
     )
-    const sortedByCodePrices = await inventoryPage.sortPricesAsc(originalPrices)
+    // Сортировка товаров по возрастанию
+    let sortedByCodePrices = await inventoryPage.sortPrices(
+      originalPrices,
+      true
+    )
     await inventoryPage.selectSort('Price (low to high)')
-    const sortedByPagePrices = await inventoryPage.getProductsPrices(
+    let sortedByPagePrices = await inventoryPage.getProductsPrices(
+      inventoryPage.inventoryPrice
+    )
+    expect(
+      inventoryPage.arraysAreEqual(sortedByCodePrices, sortedByPagePrices)
+    ).toBeTruthy()
+
+    // Сортировка товаров по убыванию
+    sortedByCodePrices = await inventoryPage.sortPrices(originalPrices, false)
+    await inventoryPage.selectSort('Price (high to low)')
+    sortedByPagePrices = await inventoryPage.getProductsPrices(
       inventoryPage.inventoryPrice
     )
     expect(
       inventoryPage.arraysAreEqual(sortedByCodePrices, sortedByPagePrices)
     ).toBeTruthy()
   })
-  // Объединить возрастание и убывание
 
   test('Проверка элементов меню', async ({ page }) => {
     const inventoryPage = new InventoryPage(page)
