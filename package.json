@@ -3,7 +3,12 @@
   "version": "1.0.0",
   "description": "Разработка E2E тестов для интернет-магазина с помощью Playwright",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "test:ci": "npx playwright test",
+    "allure": "allure serve allure-results",
+    "allure:ci": "allure generate allure-results --clean",
+    "allure:ci:show": "allure open allure-report"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
