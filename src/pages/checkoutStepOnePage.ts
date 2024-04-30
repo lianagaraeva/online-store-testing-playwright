@@ -17,10 +17,10 @@ export default class CheckoutStepOnePage {
     this.errorMessage = page.locator('[data-test="error"]')
   }
 
-  async checkoutDataInput({ firstName, lastName, postalCode }) {
-    await this.firstNameInput.fill(firstName)
-    await this.lastNameInput.fill(lastName)
-    await this.postalCodeInput.fill(postalCode)
+  async checkoutDataInput({ firstName = '', lastName = '', postalCode = '' }) {
+    firstName && (await this.firstNameInput.fill(firstName))
+    lastName && (await this.lastNameInput.fill(lastName))
+    postalCode && (await this.postalCodeInput.fill(postalCode))
     await this.continueButton.click()
   }
 

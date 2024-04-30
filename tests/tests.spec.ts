@@ -90,6 +90,10 @@ test.describe('Разработка E2E тестов для интернет-м�
   })
 
   test('Валидация полей формы при оформлении заказа', async ({ page }) => {
+    const firstName = 'John'
+    const lastName = 'Smith'
+    const postalCode = '123456'
+
     const inventoryPage = new InventoryPage(page)
     const cartPage = new CartPage(page)
     const checkoutStepOnePage = new CheckoutStepOnePage(page)
@@ -99,30 +103,18 @@ test.describe('Разработка E2E тестов для интернет-м�
     await inventoryPage.clickShoppingCart()
     await cartPage.clickCheckoutButton()
     // Начало валидации
-    await checkoutStepOnePage.checkoutDataInput({
-      firstName: '',
-      lastName: '',
-      postalCode: '',
-    })
+    await checkoutStepOnePage.checkoutDataInput({})
     await checkoutStepOnePage.checkErrorMessage('Error: First Name is required')
-    await checkoutStepOnePage.checkoutDataInput({
-      firstName: 'John',
-      lastName: '',
-      postalCode: '',
-    })
+    await checkoutStepOnePage.checkoutDataInput({ firstName })
     await checkoutStepOnePage.checkErrorMessage('Error: Last Name is required')
-    await checkoutStepOnePage.checkoutDataInput({
-      firstName: 'John',
-      lastName: 'Smith',
-      postalCode: '',
-    })
+    await checkoutStepOnePage.checkoutDataInput({ firstName, lastName })
     await checkoutStepOnePage.checkErrorMessage(
       'Error: Postal Code is required'
     )
     await checkoutStepOnePage.checkoutDataInput({
-      firstName: 'John',
-      lastName: 'Smith',
-      postalCode: '123456',
+      firstName,
+      lastName,
+      postalCode,
     })
     await inventoryPage.textInTitleIsVisible('Checkout: Overview')
   })
@@ -176,35 +168,33 @@ test.describe('Разработка E2E тестов для интернет-м�
   })
 
   test('Валидация полей формы авторизации', async ({ page }) => {
+    const validUsername = 'standard_user'
+    const validPassword = 'secret_sauce'
     const inventoryPage = new InventoryPage(page)
     const logoutPage = new Logout(page)
     const checkoutStepOnePage = new CheckoutStepOnePage(page)
     await inventoryPage.goto()
+    // Подготовка
     await inventoryPage.logout()
-    await logoutPage.authDataInput({
-      username: '',
-      password: '',
-    })
+    // Валидация полей
+    await logoutPage.authDataInput({})
     await checkoutStepOnePage.checkErrorMessage(
       'Epic sadface: Username is required'
     )
-    await logoutPage.authDataInput({
-      username: 'standard_user',
-      password: '',
-    })
+    await logoutPage.authDataInput({ username: validUsername })
     await checkoutStepOnePage.checkErrorMessage(
       'Epic sadface: Password is required'
     )
     await logoutPage.authDataInput({
-      username: 'testUsername',
-      password: 'secret_sauce',
+      username: 'wrongUsername',
+      password: validPassword,
     })
     await checkoutStepOnePage.checkErrorMessage(
       'Epic sadface: Username and password do not match any user in this service'
     )
     await logoutPage.authDataInput({
-      username: 'standard_user',
-      password: 'testPassword',
+      username: validUsername,
+      password: 'wrongPassword',
     })
     await checkoutStepOnePage.checkErrorMessage(
       'Epic sadface: Username and password do not match any user in this service'

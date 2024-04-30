@@ -27,9 +27,9 @@ export default class Logout {
     )
   }
 
-  async authDataInput({ username, password }) {
-    await this.usernameInput.fill(username)
-    await this.passwordInput.fill(password)
+  async authDataInput({ username = '', password = '' }) {
+    username && (await this.usernameInput.fill(username))
+    password && (await this.passwordInput.fill(password))
     await this.loginButton.click()
   }
 }
