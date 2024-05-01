@@ -17,7 +17,7 @@ export default class ItemPage {
   async clickButtonBackToProducts() {
     await this.buttonBackToProducts.click()
   }
-  async checkButtonColor(isFullCard) {
+  async checkButtonColor({ isFullCard = true } = {}) {
     await expect(this.buttonBackToProducts).toHaveCSS(
       'background-color',
       isFullCard ? colorWhite : colorLightGreen

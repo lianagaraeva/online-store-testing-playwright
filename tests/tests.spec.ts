@@ -13,12 +13,13 @@ test.describe('Разработка E2E тестов для интернет-м�
     await inventoryPage.goto()
     await inventoryPage.checkInventoryListVisible()
   })
+
   test('Просмотр карточки товара', async ({ page }) => {
     const inventoryPage = new InventoryPage(page)
     const itemPage = new ItemPage(page)
     await inventoryPage.goto()
     await inventoryPage.checkFirstItem(itemPage.getItemImg())
-    await itemPage.checkButtonColor(true)
+    await itemPage.checkButtonColor()
     await itemPage.clickButtonBackToProducts()
     await inventoryPage.textInTitleIsVisible('Products')
   })
@@ -68,7 +69,7 @@ test.describe('Разработка E2E тестов для интернет-м�
     await inventoryPage.textInTitleIsVisible('Checkout: Complete!')
     await checkoutCompletePage.checkCompletePage()
     await inventoryPage.checkCountShoppingCartBadge()
-    await itemPage.checkButtonColor(false)
+    await itemPage.checkButtonColor({ isFullCard: false })
     await itemPage.clickButtonBackToProducts()
     await inventoryPage.checkInventoryListVisible()
   })
@@ -84,8 +85,10 @@ test.describe('Разработка E2E тестов для интернет-м�
     const firstItemInCart = await inventoryPage.getFirstNameItemInCart()
     countItemsInCart = await cartPage.removeItemInCart(countItemsInCart)
     await inventoryPage.checkCountShoppingCartBadge(countItemsInCart)
-    const productLocators = inventoryPage.getProductLocators()
-    await cartPage.checkCountItems(productLocators, countItemsInCart)
+    await cartPage.checkCountItems(
+      inventoryPage.getProductLocators(),
+      countItemsInCart
+    )
     await inventoryPage.checkFirstNameInCartNotContainText(firstItemInCart)
   })
 
@@ -125,12 +128,12 @@ test.describe('Разработка E2E тестов для интернет-м�
     const inventoryPage = new InventoryPage(page)
     await inventoryPage.goto()
     // Подготовка к сортировке
-    let originalPrices = await inventoryPage.getProductsPrices(
+    let originalPricesList = await inventoryPage.getProductsPrices(
       inventoryPage.inventoryPrice
     )
     // Сортировка товаров по возрастанию
     let sortedByCodePrices = await inventoryPage.sortPrices(
-      originalPrices,
+      originalPricesList,
       true
     )
     await inventoryPage.selectSort('Price (low to high)')
@@ -142,7 +145,10 @@ test.describe('Разработка E2E тестов для интернет-м�
     ).toBeTruthy()
 
     // Сортировка товаров по убыванию
-    sortedByCodePrices = await inventoryPage.sortPrices(originalPrices, false)
+    sortedByCodePrices = await inventoryPage.sortPrices(
+      originalPricesList,
+      false
+    )
     await inventoryPage.selectSort('Price (high to low)')
     sortedByPagePrices = await inventoryPage.getProductsPrices(
       inventoryPage.inventoryPrice

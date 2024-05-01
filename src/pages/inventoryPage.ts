@@ -1,6 +1,7 @@
 import { expect, type Locator, type Page } from '@playwright/test'
 import { colorBlack, colorGreen, colorRed } from '../constants'
 import { getCountClicksByButton } from '../helpers'
+import { ProductLocators } from '../interfaces'
 
 const countItemsInPage = 6
 const countMenuItems = 4
@@ -67,6 +68,10 @@ export default class InventoryPage {
   }
 
   /* ------------ Отображение карточек товаров на главной странице ------------ */
+
+  /**
+   * Проверяем, что кол-во изображений, заголовков, описаний, цен, кнопок равно переменной countItemsInPage
+   */
   async checkInventoryListVisible() {
     await expect(this.inventoryList).toHaveCount(countItemsInPage)
     await expect(this.inventoryImg).toHaveCount(countItemsInPage)
@@ -75,6 +80,7 @@ export default class InventoryPage {
     await expect(this.inventoryPrice).toHaveCount(countItemsInPage)
     await expect(this.addToCartButton).toHaveCount(countItemsInPage)
 
+    // Проходимся по массиву локаторов
     for (let index = 0; index < countItemsInPage; index++) {
       const elementImg = this.inventoryImg.nth(index)
       const elementName = this.inventoryListName.nth(index)
@@ -92,7 +98,14 @@ export default class InventoryPage {
     }
   }
 
-  async checkCard(img, name, description, price, button, isFullCard = false) {
+  async checkCard(
+    img: Locator,
+    name: Locator,
+    description: Locator,
+    price: Locator,
+    button: Locator,
+    isFullCard = false
+  ) {
     await expect(img).toHaveAttribute('src', /.*/)
     await expect(name).not.toBeEmpty()
     await expect(name).toHaveCSS('color', isFullCard ? colorBlack : colorGreen)
@@ -102,7 +115,7 @@ export default class InventoryPage {
   }
 
   /* ------------------------ Просмотр карточки товара ------------------------ */
-  async checkFirstItem(itemImg) {
+  async checkFirstItem(itemImg: Locator) {
     await this.firstItemName.click()
     await this.checkCard(
       itemImg,
@@ -113,7 +126,7 @@ export default class InventoryPage {
       true
     )
   }
-  async textInTitleIsVisible(text) {
+  async textInTitleIsVisible(text: string) {
     await expect(this.title).toHaveText(text)
   }
 
@@ -139,7 +152,10 @@ export default class InventoryPage {
     await this.checkCountShoppingCartBadge(countItemsInCart)
     return countItemsInCart
   }
-
+  /**
+   * Проверяется кол-во товаров в счетчике иконки корзины
+   * @param count может быть либо number, либо null
+   */
   async checkCountShoppingCartBadge(count: number | null = null) {
     if (count !== null && count > 0) {
       await expect(this.shoppingCartBadge).toHaveText(`${count}`)
@@ -153,14 +169,13 @@ export default class InventoryPage {
   }
 
   getProductLocators() {
-    const productLocators = {
+    return {
       inventoryList: this.inventoryList,
       inventoryListName: this.inventoryListName,
       inventoryDescription: this.inventoryDescription,
       inventoryPrice: this.inventoryPrice,
       removeButton: this.removeButton,
-    }
-    return productLocators
+    } as ProductLocators
   }
 
   /* -------------------------------- Удаление -------------------------------- */
@@ -173,11 +188,11 @@ export default class InventoryPage {
   }
 
   /* ------------------------------- Сортировка ------------------------------- */
-  sortPrices(prices, isAsc) {
+  sortPrices(prices: number[], isAsc: boolean) {
     return prices.sort((a, b) => (isAsc ? a - b : b - a))
   }
 
-  async getProductsPrices(priceList) {
+  async getProductsPrices(priceList: Locator) {
     let unsortedPrices: number[] = []
     for (let index = 0; index < (await priceList.count()); index++) {
       const price = priceList.nth(index)
@@ -187,7 +202,7 @@ export default class InventoryPage {
     return unsortedPrices
   }
 
-  arraysAreEqual(arr1, arr2) {
+  arraysAreEqual(arr1: number[], arr2: number[]) {
     if (arr1.length != arr2.length) return false
     for (let i = 0; i < arr1.length; i++) {
       if (arr1[i] != arr2[i]) return false
@@ -195,7 +210,7 @@ export default class InventoryPage {
     return true
   }
 
-  async selectSort(text) {
+  async selectSort(text: string) {
     await this.productSort.selectOption(text)
   }
 
@@ -212,7 +227,7 @@ export default class InventoryPage {
     await this.closeMenuButton.click()
   }
 
-  private async checkMenuItem(elementMenuItem) {
+  private async checkMenuItem(elementMenuItem: Locator) {
     await expect(elementMenuItem).toHaveAttribute('href', /.*/)
     await expect(elementMenuItem).toHaveCSS('color', colorGreen)
   }

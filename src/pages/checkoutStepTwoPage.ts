@@ -39,18 +39,27 @@ export default class CheckoutStepTwoPage {
     await expect(this.totalLabel).toBeVisible()
   }
 
-  async checkSumOrder(inventoryPrice) {
+  async checkSumOrder(inventoryPrice: Locator) {
+    // sum - стоимость, полученная с помощью метода getSumProducts
     const sum = await this.getSumProducts(inventoryPrice)
+
+    // itemTotal - стоимость, отображающаяся на странице
     let itemTotal = await this.subtotalLabel.innerText()
     itemTotal = itemTotal.replace('Item total: $', '')
     expect(+itemTotal).toEqual(sum)
+
+    // tax - налог
     let tax = await this.taxLabel.innerText()
     tax = tax.replace('Tax: $', '')
+
+    // totalPrice - полная стоимость: itemTotal + tax
     let totalPrice = await this.totalLabel.innerText()
     totalPrice = totalPrice.replace('Total: $', '')
     expect(+itemTotal + +tax).toEqual(+totalPrice)
   }
-  async getSumProducts(priceList) {
+
+  // Проходимся по массиву локаторов inventoryPrice
+  async getSumProducts(priceList: Locator) {
     let sum = 0
     for (let index = 0; index < (await priceList.count()); index++) {
       const price = priceList.nth(index)

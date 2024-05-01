@@ -18,13 +18,15 @@ export default class CheckoutStepOnePage {
   }
 
   async checkoutDataInput({ firstName = '', lastName = '', postalCode = '' }) {
+    // условный вызов заполнения полей
+    // заполняем поле, если входные параметры не пустые
     firstName && (await this.firstNameInput.fill(firstName))
     lastName && (await this.lastNameInput.fill(lastName))
     postalCode && (await this.postalCodeInput.fill(postalCode))
     await this.continueButton.click()
   }
 
-  async checkErrorMessage(text) {
+  async checkErrorMessage(text: string) {
     await expect(this.errorMessage).toHaveText(text)
   }
 }

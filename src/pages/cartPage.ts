@@ -1,6 +1,7 @@
 import { expect, type Locator, type Page } from '@playwright/test'
 import { colorGreen } from '../constants'
 import { getCountClicksByButton } from '../helpers'
+import { ProductLocators } from '../interfaces'
 
 export default class CartPage {
   readonly page: Page
@@ -19,7 +20,7 @@ export default class CartPage {
 
   async checkCountItems(
     { inventoryList, inventoryListName, inventoryDescription, inventoryPrice },
-    countItemsInCart,
+    countItemsInCart: number,
     isCartPage = true
   ) {
     await expect(inventoryList).toHaveCount(countItemsInCart)
@@ -32,7 +33,11 @@ export default class CartPage {
     await expect(this.itemQuantity).toHaveCount(countItemsInCart)
   }
 
-  async checkItemsInCart(productLocators, countItemsInCart, isCartPage = true) {
+  async checkItemsInCart(
+    productLocators: ProductLocators,
+    countItemsInCart: number,
+    isCartPage = true
+  ) {
     const {
       inventoryList,
       inventoryListName,
@@ -68,7 +73,14 @@ export default class CartPage {
     }
   }
 
-  async checkCart(name, description, price, button, quantity, isCartPage) {
+  async checkCart(
+    name: Locator,
+    description: Locator,
+    price: Locator,
+    button: Locator,
+    quantity: Locator,
+    isCartPage: boolean
+  ) {
     await expect(quantity).toHaveText(/1/)
     await expect(name).not.toBeEmpty()
     await expect(name).toHaveCSS('color', colorGreen)
@@ -83,7 +95,7 @@ export default class CartPage {
     await this.checkoutButton.click()
   }
 
-  async removeItemInCart(countItemsInCart) {
+  async removeItemInCart(countItemsInCart: number) {
     return getCountClicksByButton(
       this.removeButtonInCart.first(),
       countItemsInCart,
